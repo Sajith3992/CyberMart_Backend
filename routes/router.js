@@ -47,7 +47,7 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
   });
 
   
-  router.post('/login', (req, res, next) => {
+  router.post('/login', async (req, res, next) => {
     db.query(
       `SELECT * FROM users WHERE email = ?;`,
       [req.body.email],
@@ -104,6 +104,16 @@ router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
   console.log(req.userData);
   res.send('This is the secret content. Only logged in users can see that!');
 });
+
+
+router.get('/dashboard', userMiddleware.isLoggedIn, (req, res) => {
+  
+  const userId = req.userData.userId;
+  res.send(`Welcome to the dashboard, user ${userId}!`);
+  
+  res.send('Welcome to the dashboard!');
+});
+
 
 
 module.exports = router;

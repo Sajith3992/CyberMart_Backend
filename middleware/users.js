@@ -8,21 +8,13 @@ module.exports = {
         message: 'Please enter a username with min. 3 chars',
       });
     }
-    // password min 6 chars
-    if (!req.body.password || req.body.password.length < 6) {
+    // password min 5 chars
+    if (!req.body.password || req.body.password.length < 5) {
       return res.status(400).send({
-        message: 'Please enter a password with min. 6 chars',
+        message: 'Please enter a password with min. 5 chars',
       });
     }
-    // password (repeat) must match
-    // if (
-    //   !req.body.password_repeat ||
-    //   req.body.password != req.body.password_repeat
-    // ) {
-    //   return res.status(400).send({
-    //     message: 'Both passwords must match',
-    //   });
-    // }
+
     next();
     
   },
@@ -46,5 +38,6 @@ module.exports = {
     }
   }
 
+  
 
 };
