@@ -106,12 +106,29 @@ router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
 });
 
 
-router.get('/dashboard', userMiddleware.isLoggedIn, (req, res) => {
-  
+router.get('/dashboard', userMiddleware.isLoggedIn, (req, res, next) => {
   const userId = req.userData.userId;
-  res.send(`Welcome to the dashboard, user ${userId}!`);
   
-  res.send('Welcome to the dashboard!');
+  // If the user is logged in and has a valid token, show the dashboard
+  res.send(`Welcome to the dashboard, user ${userId}!`);
+});
+
+// Redirect to login page if the user tries to access /dashboard without a valid token
+router.use('/dashboard', (req, res, next) => {
+  // Check if the user is not logged in (no valid token)
+  if (!req.headers.authorization) {
+    // Redirect the user to the login page or send an appropriate response
+    return res.redirect('/login'); // Assuming '/login' is the route for the login page
+  } else {
+    // If the user has a token but is not authorized for this route, you can send a 403 Forbidden error
+    return res.status(403).send('You are not authorized to access this page.');
+  }
+});
+
+
+
+router.get('/logout', userMiddleware.isLoggedIn, (req, res) => {
+  res.send('Logged out successfully');
 });
 
 

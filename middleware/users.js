@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const blacklistedTokens = new Set();
 
 module.exports = {
   validateRegister: (req, res, next) => {
@@ -25,9 +26,29 @@ module.exports = {
         message: 'Your session is not valid!',
       });
     }
+
+    // try {
+    //   const authHeader = req.headers.authorization;
+    //   const token = authHeader.split(' ')[1];
+    //   const decoded = jwt.verify(token, 'SECRETKEY');
+    //   req.userData = decoded;
+    //   next();
+    // } catch (err) {
+    //   return res.status(400).send({
+    //     message: 'Your session is not valid!',
+    //   });
+    // }
+
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(' ')[1];
+  
+    // Check if the token is blacklisted
+    if (blacklistedTokens.has(token)) {
+      return res.status(401).send({
+        message: 'Token is blacklisted. Please log in again.',
+      });
+    }
     try {
-      const authHeader = req.headers.authorization;
-      const token = authHeader.split(' ')[1];
       const decoded = jwt.verify(token, 'SECRETKEY');
       req.userData = decoded;
       next();
