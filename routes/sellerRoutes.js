@@ -25,7 +25,7 @@ router.post('/seller-sign-up', sellerMiddleware.validateRegister, (req, res, nex
                 });
               } else {
                 db.query(
-                  'INSERT INTO seller (id, clientName, email, password, city, address, phone, invitecode, registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, now());',
+                  'INSERT INTO seller (seller_id,id, clientName, email, password, city, address, phone, invitecode, registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, now());',
                   [uuid.v4(), req.body.clientName, req.body.email, hash, req.body.city, req.body.address, req.body.phone, req.body.invitecode],
                   (err, result) => {
                     if (err) {
