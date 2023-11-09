@@ -26,7 +26,7 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
               });
             } else {
               db.query(
-                'INSERT INTO users (id, clientName, email, password, city, address, phone, invitecode, registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, now());',
+                'INSERT INTO users (user_id,id, clientName, email, password, city, address, phone, invitecode, registered) VALUES (?,s?, ?, ?, ?, ?, ?, ?, ?, now());',
                 [uuid.v4(), req.body.clientName, req.body.email, hash, req.body.city, req.body.address, req.body.phone, req.body.invitecode],
                 (err, result) => {
                   if (err) {
@@ -100,31 +100,21 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
   });
 
 
-router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
+router.get('/secret-route',userMiddleware.redirectToSignUp, userMiddleware.isLoggedIn, (req, res, next) => {
   console.log(req.userData);
   res.send('This is the secret content. Only logged in users can see that!');
 });
 
-
-router.get('/dashboard', userMiddleware.isLoggedIn, (req, res, next) => {
-  const userId = req.userData.userId;
-  
-  // If the user is logged in and has a valid token, show the dashboard
-  res.send(`Welcome to the dashboard, user ${userId}!`);
+router.get('/seller-secret-route', userMiddleware.redirectToSignUp, userMiddleware.isLoggedIn, (req, res, next) => {
+  console.log(req.userData);
+  res.send('This is the secret content. Only logged in users can see that!');
 });
 
-// Redirect to login page if the user tries to access /dashboard without a valid token
-router.use('/dashboard', (req, res, next) => {
-  // Check if the user is not logged in (no valid token)
-  if (!req.headers.authorization) {
-    // Redirect the user to the login page or send an appropriate response
-    return res.redirect('/login'); // Assuming '/login' is the route for the login page
-  } else {
-    // If the user has a token but is not authorized for this route, you can send a 403 Forbidden error
-    return res.status(403).send('You are not authorized to access this page.');
-  }
+// Protect the /dashboard route using the same middleware
+router.get('/dashboard', userMiddleware.redirectToSignUp, userMiddleware.isLoggedIn, (req, res, next) => {
+  // Your dashboard route logic here
+  res.send('This is the dashboard. Only logged in users can access this.');
 });
-
 
 
 router.get('/logout', userMiddleware.isLoggedIn, (req, res) => {

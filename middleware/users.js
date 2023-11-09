@@ -4,7 +4,7 @@ const blacklistedTokens = new Set();
 module.exports = {
   validateRegister: (req, res, next) => {
     // username min length 3
-    if (!req.body.clientName || req.body.clientName.length < 3) {
+    if (!req.body.clientName || req.body.clientName.length <= 3) {
       return res.status(400).send({
         message: 'Please enter a username with min. 3 chars',
       });
@@ -58,7 +58,13 @@ module.exports = {
       });
     }
   }
-
-  
+,
+  redirectToSignUp: (req, res, next) => {
+    // If the user is not authenticated, redirect to the signup page
+    if (!req.headers.authorization) {
+      return res.redirect('/signup'); // Change '/signup' to your desired signup page URL
+    }
+    next();
+  }
 
 };
