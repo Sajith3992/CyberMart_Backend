@@ -26,7 +26,7 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
               });
             } else {
               db.query(
-                'INSERT INTO users (user_id,id, clientName, email, password, city, address, phone, invitecode, registered) VALUES (?,s?, ?, ?, ?, ?, ?, ?, ?, now());',
+                'INSERT INTO users (id, clientName, email, password, city, address, phone, invitecode, registered) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, now());',
                 [uuid.v4(), req.body.clientName, req.body.email, hash, req.body.city, req.body.address, req.body.phone, req.body.invitecode],
                 (err, result) => {
                   if (err) {
@@ -34,8 +34,19 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
                       message: err,
                     });
                   }
+
+                  const token = jwt.sign(
+                    {
+                      email:req.body.email,
+                      userId:result.insertId,
+                    },
+                    'SECRETKEY',
+                  { expiresIn: '1h' }
+                  );
+
                   return res.status(201).send({
                     message: 'Registered!',
+                    token:token,
                   });
                 }
               );
