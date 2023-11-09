@@ -7,54 +7,54 @@ const db = require('../lib/db.js');
 const sellerMiddleware = require('../middleware/sellerMiddleware.js');
 
 router.post('/seller-sign-up', sellerMiddleware.validateRegister, (req, res, next) => {
-    db.query(
-        'SELECT id FROM seller WHERE LOWER(clientName) = LOWER(?)',
-        [req.body.clientName],
-        (err, result) => {
-          if (result && result.length) {
-            // error
-            return res.status(409).send({
-              message: 'This sellerName is already in use!',
+  db.query(
+    'SELECT id FROM seller WHERE LOWER(clientName) = LOWER(?)',
+    [req.body.clientName],
+    (err, result) => {
+      if (result && result.length) {
+        // error
+        return res.status(409).send({
+          message: 'This clientName is already in use!',
+        });
+      } else {
+        // clientName not in use
+        bcrypt.hash(req.body.password, 10, (err, hash) => {
+          if (err) {
+            return res.status(500).send({
+              message: err,
             });
           } else {
-            // clientName not in use
-            bcrypt.hash(req.body.password, 10, (err, hash) => {
-              if (err) {
-                return res.status(500).send({
-                  message: err,
-                });
-              } else {
-                db.query(
-                  'INSERT INTO seller (id, clientName, email, password, city, address, phone, invitecode, registered) VALUES (?, ?, ?, ?, ?, ?, ?, now());',
-                  [uuid.v4(), req.body.clientName, req.body.email, hash, req.body.city, req.body.address, req.body.phone, req.body.invitecode],
-                  (err, result) => {
-                    if (err) {
-                      return res.status(400).send({
-                        message: err,
-                      });
-                    }
+            db.query(
+              'INSERT INTO seller (id, clientName, email, password, city, address, phone, invitecode, registered) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, now());',
+              [uuid.v4(), req.body.clientName, req.body.email, hash, req.body.city, req.body.address, req.body.phone, req.body.invitecode],
+              (err, result) => {
+                if (err) {
+                  return res.status(400).send({
+                    message: err,
+                  });
+                }
 
-                    const token = jwt.sign(
-                      {
-                        email:req.body.email,
-                        selleId:result.insertsellerId,
-                      },
-                      'SECRETKEY',
-                    { expiresIn: '1h' }
-                    );
-  
-                    return res.status(201).send({
-                      message: 'Registered!',
-                      token:token,
-                    });
-                  }
+                const token = jwt.sign(
+                  {
+                    email:req.body.email,
+                    sellerId:result.insertId,
+                  },
+                  'SECRETKEY',
+                { expiresIn: '1h' }
                 );
+
+                return res.status(201).send({
+                  message: 'Registered!',
+                  token:token,
+                });
               }
-            });
+            );
           }
-        }
-      );
-    });
+        });
+      }
+    }
+  );
+});
 
 router.post('/seller-login', async (req, res, next) => {
     db.query(
