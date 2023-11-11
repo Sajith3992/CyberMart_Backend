@@ -19,6 +19,7 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
           });
         } else {
           // clientName not in use
+          const userId = uuid.v4();
           bcrypt.hash(req.body.password, 10, (err, hash) => {
             if (err) {
               return res.status(500).send({
@@ -27,18 +28,18 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
             } else {
               db.query(
                 'INSERT INTO users (id, clientName, email, password, city, address, phone, invitecode, registered) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, now());',
-                [uuid.v4(), req.body.clientName, req.body.email, hash, req.body.city, req.body.address, req.body.phone, req.body.invitecode],
+                [userId,req.body.clientName, req.body.email, hash, req.body.city, req.body.address, req.body.phone, req.body.invitecode],
+                //uuid.v4(),
                 (err, result) => {
                   if (err) {
                     return res.status(400).send({
                       message: err,
                     });
                   }
-
                   const token = jwt.sign(
                     {
+                      userId: userId,
                       email:req.body.email,
-                      userId:result.insertId,
                     },
                     'SECRETKEY',
                   { expiresIn: '1h' }
@@ -55,7 +56,9 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
         }
       }
     );
+
   });
+
 
   
   router.post('/login', async (req, res, next) => {
