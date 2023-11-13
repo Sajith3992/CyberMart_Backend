@@ -18,7 +18,19 @@ router.post('/brand',(req, res, next) => {
             }
             res.status(201).send('Brand Insert Successfully');
         }
-        )
-})
+        );
+});
 
+router.get('/brands',(req, res , next) =>{
+    db.query(
+        'SELECT * FROM brand;',
+        (err, results) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).send('Error fetching brands from the database');
+            }
+            res.status(200).json(results);
+        }
+    );
+});
 module.exports = router;

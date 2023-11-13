@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../lib/db.js');
 const {validateProduct } = require('../middleware/productMiddleware.js');
 
+
 router.post('/product',(req, res, next) => {
     const {p_name, p_brand, p_category, p_unit, p_minqty, p_lotnumber, p_exprireddate, p_barcode,p_image,p_price, p_tax,p_purchesprice,p_discount,p_taxtype,p_margine,p_saleprice,p_finalprice} = req.body;
     
