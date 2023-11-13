@@ -4,12 +4,12 @@ const db = require('../lib/db.js');
 
 
 router.post('/brand',(req, res, next) => {
-    const {name } = req.body;
-    
+    const {brand_name} = req.body;
+
     db.query(
-        'INSERT INTO brand (name, ) VALUES ( ? );',
+        'INSERT INTO brand (brand_name) VALUES ( ?);',
         [
-            name, 
+            brand_name
         ],
         (err,result) =>{
             if(err){
